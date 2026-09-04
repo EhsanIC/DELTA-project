@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             CustomerSeeder::class,
             OpportunitySeeder::class,
             UserSeeder::class,
+            SettingSeeder::class,
         ]);
     }
 }
