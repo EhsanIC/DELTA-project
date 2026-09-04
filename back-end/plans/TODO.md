@@ -2,121 +2,143 @@
 
 `[ ]` not started &nbsp;&nbsp; `[X]` done &nbsp;&nbsp; `[~]` in progress / partial
 
----
-
-## Phase 1 — Skeleton & Auth
-
-- [X] `composer create-project laravel/laravel backend`
-- [X] `composer require spatie/laravel-permission`
-- [X] Publish Spatie permission config and relational ACL migrations
-- [X] `php artisan migrate`
-- [X] Seed `sales`, `operations`, `finance`, and `admin` roles plus application permissions
-- [X] CORS config allowing the Next.js frontend origin
-- [X] Relational roles/permissions tables replace the flat `role` column on `users`
-- [X] Login endpoint issuing a Sanctum token
-- [X] `auth:sanctum` middleware applied to protected API routes
-- [X] Spatie role/permission middleware registered for route-level authorization
+Organized **feature by feature** — each phase takes one feature all
+the way from database to a testable endpoint, so you can verify it
+manually (Postman/Insomnia/browser) before moving to the next one,
+instead of building all models first and only testing at the end.
 
 ---
 
-## Phase 2 — Data models & migrations
+## Phase 0 — Project setup & Auth
+*(one-time foundation, needed before any feature can be tested)*
 
-**Core entities**
-
-- [ ] `products` (name, base_price, unit_cost, physical_inventory, reserved_inventory, safety_stock, install_minutes_per_unit)
-- [ ] `customers` (name, contact info)
-- [ ] `opportunities` (customer_id, product_id, qty, unit_price, discount_percent, due_date, stage, analytical_status)
-- [ ] `orders` (firm/won opportunities — or a `stage = won` flag on opportunities, whichever is simpler)
-- [ ] `inventory_adjustments` (product_id, new_quantity, reason, user_id, created_at)
-- [ ] `capacity_adjustments` (date, available_hours, reason, user_id, created_at)
-- [ ] `install_capacity` (date, total_hours, reserved_hours)
-- [ ] `receipts` (amount, date)
-- [ ] `payments` (amount, date)
-- [ ] `expenses` (amount, date, description)
-- [ ] `cash_balance` (current running total, or derive from receipts − payments − expenses)
-- [ ] `settings` (single-row or key/value table: target_margin, min_operating_cash, fixed_shipping, per_unit_shipping, capacity thresholds, alert toggles)
-- [ ] `alerts` (title, severity, cause, effect, suggestion, entity reference, active/resolved)
-- [ ] `events` (timestamp, change_type, entity, value_before, value_after, reason, user_id, alert_generated) — insert-only, no update/delete
-
-- [ ] Seed data migration/seeder: 3 products, 5 customers, 5 opportunities, 3 firm orders, initial inventory/capacity/cash/settings (matching the brief's seed table)
+- [ ] `composer create-project laravel/laravel backend`
+- [ ] `composer require laravel/sanctum`
+- [ ] `php artisan install:api`
+- [ ] `php artisan migrate`
+- [ ] CORS config allowing the Next.js frontend origin
+- [ ] `composer require spatie/laravel-permission`
+- [ ] `php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"`
+- [ ] `php artisan migrate` (creates `roles`, `permissions`, `model_has_roles`, `model_has_permissions`, `role_has_permissions`)
+- [ ] Seeder: create the 4 roles (`sales`, `operations`, `finance`, `admin`) + their permissions
+- [ ] Login endpoint issuing a Sanctum token
+- [ ] `auth:sanctum` applied to API routes
+- [ ] Route-level role middleware (Spatie's `role:admin` etc.) available for use in later phases
+- [ ] **Verify:** log in via Postman, get a token, assign a role to a test user, confirm `$user->hasRole()` / a `role:`-protected dummy route behaves correctly
 
 ---
 
-## Phase 3 — Calculation engine (shared logic)
+## Phase 1 — Products
+*(needed by almost every other feature, so it goes first)*
 
-- [ ] `CalculationService` (or similar) — single source of truth for all formulas, used by every endpoint that needs them
-    - [ ] Revenue = qty × unit price
-    - [ ] Cost of goods = qty × unit cost
-    - [ ] Shipping cost = fixed shipping + (per-unit shipping × qty)
-    - [ ] Install hours = qty × install-minutes-per-unit ÷ 60
-    - [ ] Operating profit = revenue − COGS − shipping
-    - [ ] Margin % = operating profit ÷ revenue × 100
-    - [ ] Free inventory = physical − reserved
-- [ ] `FeasibilityService` — determines `Feasible / Conditional / Not feasible` per opportunity, reading thresholds from Settings (never hardcoded)
-- [ ] `AlertService` — generates/updates alerts (info/risk/critical) based on inventory, capacity, cash, and margin thresholds from Settings
-- [ ] All services read **all** thresholds/rules from the `settings` table, nothing hardcoded in service classes
+- [ ] Migration + model: `products` (name, base_price, unit_cost, physical_inventory, reserved_inventory, safety_stock, install_minutes_per_unit)
+- [ ] Seeder: the 3 products from the brief's seed table
+- [ ] `GET /api/products` — list
+- [ ] `GET /api/products/{id}` — single
+- [ ] **Verify:** call `GET /api/products`, confirm the 3 seeded products come back correctly
 
 ---
 
-## Phase 4 — Sales endpoints
+## Phase 2 — Customers
 
-- [ ] `GET /api/opportunities` — list with computed status + alert severity
-- [ ] `POST /api/opportunities` — create (Form Request validation: required fields, no negative qty, valid due date)
-- [ ] `PATCH /api/opportunities/{id}` — update, including stage transitions
-- [ ] Marking stage = `Won` → reserve inventory + capacity, convert to firm commitment, trigger recalculation (Phase 6)
-- [ ] `POST /api/opportunities/preview` (optional) — server-side echo of the same formula for consistency checks; not required for live UI since frontend computes it client-side, but useful if you want one source of truth
+- [ ] Migration + model: `customers` (name, contact info)
+- [ ] Seeder: the 5 customers from the brief
+- [ ] `GET /api/customers`
+- [ ] **Verify:** call `GET /api/customers`, confirm 5 records
 
 ---
 
-## Phase 5 — Operations & Finance endpoints
+## Phase 3 — Sales Opportunities
+*(the core feature — build it fully, one entity at a time, and test each piece)*
 
-**Operations**
+- [ ] Migration + model: `opportunities` (customer_id, product_id, qty, unit_price, discount_percent, due_date, stage, analytical_status)
+- [ ] Seeder: the 5 opportunities from the brief
+- [ ] `GET /api/opportunities` — list, plain (no calculated fields yet)
+- [ ] **Verify:** confirm the 5 seeded opportunities return correctly
+- [ ] `POST /api/opportunities` — create, with Form Request validation (required fields, no negative qty, valid due date)
+- [ ] **Verify:** create one via Postman, confirm it's saved and rejected correctly when a required field is missing
+- [ ] `PATCH /api/opportunities/{id}` — update, including stage changes (New → Quoted → Won → Lost)
+- [ ] **Verify:** update stage on one record, confirm it persists
+- [ ] `CalculationService` — revenue, cost of goods, shipping, install hours, operating profit, margin %
+- [ ] Wire calculated fields into the `GET`/`POST` responses
+- [ ] **Verify:** create/update an opportunity, confirm the returned numbers match the brief's formulas by hand
+- [ ] `FeasibilityService` — `Feasible / Conditional / Not feasible`, thresholds read from `settings` (stub settings table if Phase 6 isn't built yet)
+- [ ] **Verify:** change quantity past available stock, confirm status flips correctly
+- [ ] Marking stage = `Won` → reserve inventory + install capacity on the product/capacity records
+- [ ] **Verify:** mark an opportunity "Won", confirm product's reserved inventory increases
 
-- [ ] `POST /api/inventory-adjustments` — validate + apply + return affected opportunities/orders
-- [ ] `POST /api/capacity-adjustments` — validate + apply + return affected opportunities/orders
+---
 
-**Finance**
+## Phase 4 — Operations (Inventory & Capacity)
 
-- [ ] `POST /api/receipts`
-- [ ] `POST /api/payments`
-- [ ] `POST /api/expenses`
+- [ ] Migration + model: `inventory_adjustments` (product_id, new_quantity, reason)
+- [ ] `POST /api/inventory-adjustments` — validate, apply, return list of affected opportunities
+- [ ] **Verify:** adjust a product's inventory down, confirm affected opportunities in the response, and confirm the product record updated
+- [ ] Migration + model: `install_capacity` + `capacity_adjustments` (date, available_hours, reason)
+- [ ] `POST /api/capacity-adjustments` — validate, apply, return affected opportunities/orders
+- [ ] **Verify:** adjust capacity for a date, confirm affected records and updated capacity value
+
+---
+
+## Phase 5 — Finance (Receipts, Payments, Expenses)
+
+- [ ] Migrations + models: `receipts`, `payments`, `expenses`
+- [ ] `POST /api/receipts` — validate + save
+- [ ] **Verify:** create a receipt, confirm it's saved
+- [ ] `POST /api/payments` — validate + save
+- [ ] **Verify:** create a payment, confirm it's saved
+- [ ] `POST /api/expenses` — validate + save (amount, date, description)
+- [ ] **Verify:** create an expense, confirm it's saved
 - [ ] `GET /api/cash-summary` — current balance, post-change balance, next-7-days receipts/payments, lowest forecasted balance, shortage warning
-
-- [ ] Form Request validation on all of the above: required fields, disallowed negatives, valid dates — this is the **only** thing allowed to block a save
-
----
-
-## Phase 6 — Recalculation & cascading effects
-
-- [ ] `RecalculationService` — re-runs Calculation/Feasibility/Alert services across all affected records after any save
-- [ ] Triggered on: opportunity save, inventory adjustment, capacity adjustment, receipt/payment/expense, settings change
-- [ ] Save cycle implemented as: save → update real state → recalculate → update alerts/indicators → write event (Phase 8)
-- [ ] Confirm a settings change (e.g. target margin) cascades to every open opportunity's status and alerts
+- [ ] **Verify:** with seeded + created records, confirm the 7-day forecast and shortage warning match manual math
 
 ---
 
-## Phase 7 — Dashboard, Alert Center & Settings endpoints
+## Phase 6 — Settings (Admin only)
+
+- [ ] Migration + model: `settings` (target_margin, min_operating_cash, fixed_shipping, per_unit_shipping, capacity thresholds, alert toggles)
+- [ ] Seeder: initial settings values from the brief
+- [ ] `GET /api/settings`
+- [ ] **Verify:** confirm seeded values return correctly
+- [ ] `PATCH /api/settings` — Admin-role-gated update
+- [ ] **Verify:** try updating as a non-admin (should be rejected), then as admin (should succeed)
+- [ ] Wire `FeasibilityService`/`CalculationService` (Phase 3) to actually read from this table instead of any stubbed values
+- [ ] **Verify:** change target margin, re-fetch an opportunity, confirm its status/margin reflects the new setting
+
+---
+
+## Phase 7 — Alerts & Recalculation Cascade
+
+- [ ] Migration + model: `alerts` (title, severity, cause, effect, suggestion, entity reference, active/resolved)
+- [ ] `AlertService` — generates/updates alerts from inventory, capacity, cash, and margin thresholds
+- [ ] `RecalculationService` — re-runs calculation/feasibility/alerts across affected records after any save
+- [ ] Hook `RecalculationService` into: opportunity save, inventory adjustment, capacity adjustment, finance entries, settings update
+- [ ] `GET /api/alerts` — active alerts
+- [ ] **Verify:** trigger a known shortage (e.g. push qty past inventory), confirm the matching critical alert appears in `GET /api/alerts`
+- [ ] **Verify:** change a setting (Phase 6), confirm alerts across multiple opportunities update accordingly
+
+---
+
+## Phase 8 — Dashboard
 
 - [ ] `GET /api/dashboard` — firm revenue, operating profit, cash, open opportunities, at-risk orders, critical alert count, product inventory, capacity utilization %
-- [ ] `GET /api/alerts` — active alerts with title, severity, cause, effect, suggestion
-- [ ] `GET /api/settings` — current settings values
-- [ ] `PATCH /api/settings` (Admin-only, role-gated) — update settings, triggers Phase 6 recalculation
+- [ ] **Verify:** cross-check each number against the underlying records by hand
 
 ---
 
-## Phase 8 — Events log
+## Phase 9 — Events Log
 
+- [ ] Migration + model: `events` (timestamp, change_type, entity, value_before, value_after, reason, user_id, alert_generated) — insert-only
+- [ ] Event write hooked into every save path built in Phases 3–6
 - [ ] `GET /api/events` — paginated, most recent first
-- [ ] Event write hooked into every save path (opportunity, inventory, capacity, receipt, payment, expense, settings)
-- [ ] No update or delete route exposed for events — insert-only by design
+- [ ] **Verify:** perform a save in each feature area, confirm a matching event appears; confirm no update/delete route exists for events
 
 ---
 
-## Phase 9 — Polish & validation pass
+## Phase 10 — Final polish pass
 
-- [ ] Form Request classes cover every documented validation rule (required fields, negative-value rules, date validity)
-- [ ] Consistent JSON error responses for validation failures (so frontend `sonner` toasts have something clean to show)
-- [ ] `JsonResource` classes for consistent API response shapes across all endpoints
-- [ ] Sanity check: no endpoint depends on an external service, paid API, or cloud dependency
-- [ ] Sanity check: no business number (margin target, min cash, shipping cost, thresholds) is hardcoded anywhere outside the `settings` table
-- [ ] Seed data verified against the brief's exact seed table (products, customers, opportunities, orders)
+- [ ] `JsonResource` classes for consistent response shapes across all endpoints
+- [ ] Consistent validation error format across all Form Requests
+- [ ] Sanity check: no business number is hardcoded anywhere outside the `settings` table
+- [ ] Sanity check: no endpoint depends on an external/paid/cloud service
+- [ ] Full manual run-through: create a sale → mark it Won → adjust inventory → change a setting → confirm dashboard, alerts, and events all reflect it correctly end-to-end
