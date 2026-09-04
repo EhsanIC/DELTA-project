@@ -31,7 +31,7 @@ instead of building all models first and only testing at the end.
 ## Phase 1 — Products
 *(needed by almost every other feature, so it goes first)*
 
-- [ ] Migration + model: `products` (name, base_price, unit_cost, physical_inventory, reserved_inventory, safety_stock, install_minutes_per_unit)
+- [X] Migration + model: `products` (name, base_price, unit_cost, physical_inventory, reserved_inventory, safety_stock, install_minutes_per_unit)
 - [ ] Seeder: the 3 products from the brief's seed table
 - [ ] `GET /api/products` — list
 - [ ] `GET /api/products/{id}` — single
