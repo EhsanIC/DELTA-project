@@ -7,14 +7,15 @@
 ## Phase 1 — Skeleton & Auth
 
 - [X] `composer create-project laravel/laravel backend`
-- [X] `composer require laravel/sanctum`
-- [X] `php artisan install:api`
+- [X] `composer require spatie/laravel-permission`
+- [X] Publish Spatie permission config and relational ACL migrations
 - [X] `php artisan migrate`
-- [ ] CORS config allowing the Next.js frontend origin
-- [ ] `role` column added to `users` table (`sales / operations / finance / admin`)
-- [ ] Login endpoint issuing a Sanctum token
-- [ ] `auth:sanctum` middleware applied to protected API routes
-- [ ] Role-check middleware or policy base (gate per role)
+- [X] Seed `sales`, `operations`, `finance`, and `admin` roles plus application permissions
+- [X] CORS config allowing the Next.js frontend origin
+- [X] Relational roles/permissions tables replace the flat `role` column on `users`
+- [X] Login endpoint issuing a Sanctum token
+- [X] `auth:sanctum` middleware applied to protected API routes
+- [X] Spatie role/permission middleware registered for route-level authorization
 
 ---
 

@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table): void {
-            $table->string('role')->default('sales')->index();
+            // The flat role column was replaced by the relational ACL.
         });
     }
 
@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table): void {
-            $table->dropColumn('role');
+            // The flat role column is intentionally not restored.
         });
     }
 };

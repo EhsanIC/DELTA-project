@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (! Schema::hasColumn('users', 'role')) {
+        if (Schema::hasColumn('users', 'role')) {
             Schema::table('users', function (Blueprint $table): void {
-                $table->string('role')->default('sales')->index();
+                $table->dropColumn('role');
             });
         }
     }
@@ -23,9 +23,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        if (Schema::hasColumn('users', 'role')) {
+        if (! Schema::hasColumn('users', 'role')) {
             Schema::table('users', function (Blueprint $table): void {
-                $table->dropColumn('role');
+                $table->string('role')->default('sales')->index();
             });
         }
     }
