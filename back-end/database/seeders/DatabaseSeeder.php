@@ -15,7 +15,12 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call(RolePermissionSeeder::class);
+        $this->call([
+            RolePermissionSeeder::class,
+            ProductSeeder::class,
+            CustomerSeeder::class,
+            OpportunitySeeder::class,
+        ]);
 
         $user = User::updateOrCreate(
             ['email' => 'test@example.com'],
