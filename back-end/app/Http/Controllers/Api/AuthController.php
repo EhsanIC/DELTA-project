@@ -4,13 +4,41 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
+use App\Http\Requests\RegisterRequest;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
+    /**
+     * Register a user and issue a Sanctum bearer token.
+     */
+    public function register(RegisterRequest $request): JsonResponse
+    {
+        $userData = $request->validated();
+        $role = $userData['role'] ?? null;
+        unset($userData['role']);
+
+        [$user, $token] = DB::transaction(function () use ($userData, $role): array {
+            $user = User::query()->create($userData);
+
+            if ($role !== null) {
+                $user->assignRole($role);
+            }
+
+            return [$user, $user->createToken('api')->plainTextToken];
+        });
+
+        return response()->json([
+            'token' => $token,
+            'token_type' => 'Bearer',
+            'user' => $this->userPayload($user),
+        ], 201);
+    }
+
     /**
      * Authenticate a user and issue a Sanctum bearer token.
      */

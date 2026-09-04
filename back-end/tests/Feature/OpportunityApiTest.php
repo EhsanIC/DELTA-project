@@ -39,6 +39,42 @@ test('opportunity routes require the sales role', function () {
         ->assertForbidden();
 });
 
+test('a sales user can log in and complete the opportunity flow', function () {
+    $user = salesUser();
+    $product = product();
+
+    $loginResponse = $this->postJson('/api/auth/login', [
+        'email' => $user->email,
+        'password' => 'password',
+    ])->assertSuccessful();
+    $headers = [
+        'Authorization' => 'Bearer '.$loginResponse->json('token'),
+    ];
+
+    $this->withHeaders($headers)
+        ->getJson('/api/opportunities')
+        ->assertSuccessful()
+        ->assertJsonCount(0, 'opportunities');
+
+    $createResponse = $this->withHeaders($headers)
+        ->postJson('/api/opportunities', [
+            'product_id' => $product->id,
+            'qty' => 2,
+            'unit_price' => 1300.00,
+            'due_date' => '2026-10-20',
+            'stage' => 'Quoted',
+        ])
+        ->assertCreated();
+    $opportunityId = $createResponse->json('opportunity.id');
+
+    $this->withHeaders($headers)
+        ->patchJson("/api/opportunities/{$opportunityId}", [
+            'stage' => 'Won',
+        ])
+        ->assertSuccessful()
+        ->assertJsonPath('opportunity.stage', 'Won');
+});
+
 test('sales users can list seeded opportunities', function () {
     $user = salesUser();
     $product = product();

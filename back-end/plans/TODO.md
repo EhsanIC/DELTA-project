@@ -10,6 +10,11 @@ a quick win you can tick off and move on.
 
 ## Phase 1 — Sales Dashboard
 
+**Setup**
+- [X] Seed 5 users: user@example.com (no role), plus one each for sales, operations, finance, and admin
+- [X] Build signup endpoint with optional non-admin role assignment
+- [X] Build login endpoint returning a Sanctum token
+
 **Products**
 - [X] Create `products` migration
 - [X] Create `Product` model
@@ -26,7 +31,7 @@ a quick win you can tick off and move on.
 - [X] Seed 5 opportunities (product only, no customer, no discount)
 - [X] Build `GET /api/opportunities`
 - [X] Build `POST /api/opportunities`
-- [X] Build `PATCH /api/opportunities/{id}``
+- [X] Build `PATCH /api/opportunities/{id}`
 - [X] Add validation: required fields
 - [X] Add validation: no negative quantity
 - [X] Add validation: valid due date
@@ -38,7 +43,7 @@ a quick win you can tick off and move on.
 - [X] Protect opportunity routes with `role:sales`
 
 **Verify**
-- [ ] Log in as sales user and confirm list/create/update all work
+- [X] Log in as sales user and confirm list/create/update all work
 
 ---
 
