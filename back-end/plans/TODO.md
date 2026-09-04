@@ -118,13 +118,13 @@ a quick win you can tick off and move on.
   at-risk opportunities, and alert counts.
 
 **Build status**
-- [ ] Create `settings` migration + model
-- [ ] Seed initial settings (target margin, min cash, shipping costs, thresholds)
-- [ ] Build `GET /api/settings`
-- [ ] Build `PATCH /api/settings`
-- [ ] Protect settings routes with `role:admin`
-- [ ] Build `GET /api/dashboard` (pull totals from opportunities, cash,d inventory)
-- [ ] **Verify:** log in as admin, view dashboard numbers, update a setting, confirm it saves
+- [X] Create `settings` migration + model
+- [X] Seed initial settings (target margin, min cash, shipping costs, thresholds)
+- [X] Build `GET /api/settings`
+- [X] Build `PATCH /api/settings`
+- [X] Protect settings routes with `role:admin`
+- [X] Build `GET /api/dashboard` (pull totals from opportunities, cash, and inventory)
+- [X] **Verify:** admin feature coverage and full backend suite pass; Laravel emits existing `.env` file warnings
 
 ---
 

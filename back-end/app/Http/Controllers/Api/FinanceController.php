@@ -24,7 +24,10 @@ class FinanceController extends Controller
         ]);
 
         return response()->json([
-            'receipt' => $receipt->load('user'),
+            'receipt' => [
+                ...$receipt->load('user')->toArray(),
+                'date' => $receipt->date?->format('Y-m-d'),
+            ],
         ], 201);
     }
 
@@ -39,7 +42,10 @@ class FinanceController extends Controller
         ]);
 
         return response()->json([
-            'payment' => $payment->load('user'),
+            'payment' => [
+                ...$payment->load('user')->toArray(),
+                'date' => $payment->date?->format('Y-m-d'),
+            ],
         ], 201);
     }
 
@@ -54,7 +60,10 @@ class FinanceController extends Controller
         ]);
 
         return response()->json([
-            'expense' => $expense->load('user'),
+            'expense' => [
+                ...$expense->load('user')->toArray(),
+                'date' => $expense->date?->format('Y-m-d'),
+            ],
         ], 201);
     }
 

@@ -26,7 +26,13 @@ class UpdateSettingsRequest extends FormRequest
             'settings' => ['required', 'array', 'min:1'],
         ];
 
-        foreach ($this->input('settings', []) as $key => $value) {
+        $settings = $this->input('settings', []);
+
+        if (! is_array($settings)) {
+            return $rules;
+        }
+
+        foreach ($settings as $key => $value) {
             $definition = Setting::definitions()[$key] ?? null;
 
             if ($definition === null) {
@@ -54,7 +60,13 @@ class UpdateSettingsRequest extends FormRequest
     public function withValidator(\Illuminate\Contracts\Validation\Validator $validator): void
     {
         $validator->after(function ($validator): void {
-            foreach (array_keys($this->input('settings', [])) as $key) {
+            $settings = $this->input('settings', []);
+
+            if (! is_array($settings)) {
+                return;
+            }
+
+            foreach (array_keys($settings) as $key) {
                 if (! array_key_exists($key, Setting::definitions())) {
                     $validator->errors()->add('settings.'.$key, 'This setting is not supported.');
                 }

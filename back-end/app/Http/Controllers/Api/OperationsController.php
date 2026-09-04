@@ -64,7 +64,10 @@ class OperationsController extends Controller
             ->values();
 
         return response()->json([
-            'capacity_adjustment' => $capacityAdjustment->load('user'),
+            'capacity_adjustment' => [
+                ...$capacityAdjustment->load('user')->toArray(),
+                'date' => $capacityAdjustment->date?->format('Y-m-d'),
+            ],
             'affected_opportunities' => $affectedOpportunities,
         ], 201);
     }

@@ -11,12 +11,12 @@ just different data/forms per role.
 ## Phase 1 — Sales Dashboard
 
 **Setup**
-- [ ] Install deps: `react-hook-form`, `zod`, `@hookform/resolvers`, `sonner`, `swr`
-- [ ] `npx shadcn@latest init`
-- [ ] Add shadcn components: `button`, `input`, `label`, `form`, `select`, `table`, `sonner`
+- [X] Install deps: `react-hook-form`, `zod`, `@hookform/resolvers`, `sonner`, `swr`
+- [X] `npx shadcn@latest init`
+- [~] Add shadcn components: `button`, `input`, `label`, `form`, `select`, `table`, `sonner` (base components exist; form/select/table/sonner are still missing)
 - [ ] `apiFetch` wrapper (base URL + Sanctum token header)
-- [ ] Signup page — calls `POST /api/signup` (email, password, optional role)
-- [ ] Login page — calls login endpoint, stores token
+- [~] Signup page — calls `POST /api/signup` (signup page/form shell exists, but it does not call the backend)
+- [~] Login page — calls login endpoint, stores token (login page/form shell exists, but it does not call the backend)
 - [ ] `useRole()` hook — reads role from logged-in user
 - [ ] Route protection so `/sales` only loads for `role:sales`
 
@@ -49,9 +49,9 @@ just different data/forms per role.
 
 ## Phase 3 — Finance Dashboard
 
-- [ ] `ReceiptForm`, `PaymentForm`, `ExpenseForm` — react-hook-form + zod, each with `amount`, `date` (+ `description` for expense)
-- [ ] Wire each submit → its `POST` endpoint → toast
-- [ ] `CashSummary` — fetch `GET /api/cash-summary` via SWR, show current balance
+- [~] `ReceiptForm`, `PaymentForm`, `ExpenseForm` — finance page has one native-state form switching between all three entry types, but does not use react-hook-form + zod
+- [~] Wire each submit → its `POST` endpoint → toast (all three POST endpoints are wired and refresh the summary; uses inline messages instead of sonner)
+- [~] `CashSummary` — fetch `GET /api/cash-summary` via SWR, show current balance (summary is fetched with native fetch/useEffect, not SWR)
 - [ ] Route protection for `role:finance`
 - [ ] **Verify:** log in as finance user, submit all three forms, confirm cash summary total updates
 
@@ -68,8 +68,8 @@ just different data/forms per role.
 ---
 
 ## Later (only if time remains)
-- [ ] Live client-side preview panel (calc before save, not just after)
+- [~] Live client-side preview panel (calc before save, not just after) (finance cash post-save preview exists; sales/opportunity previews do not)
 - [ ] Alert Center UI (info/risk/critical badges)
 - [ ] Activity/events log page
-- [ ] Loading/empty/error state polish
+- [~] Loading/empty/error state polish (finance page has basic loading and error/message handling; the rest of the app is not covered)
 - [ ] SWR polling interval for cross-screen live updates
