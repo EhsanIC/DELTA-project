@@ -24,6 +24,7 @@ class UpdateOpportunityRequest extends FormRequest
     {
         return [
             'product_id' => ['sometimes', 'required', 'integer', 'exists:products,id'],
+            'customer_id' => ['sometimes', 'nullable', 'integer', 'exists:customers,id'],
             'qty' => ['sometimes', 'required', 'integer', 'min:0'],
             'unit_price' => ['sometimes', 'required', 'numeric', 'min:0'],
             'due_date' => ['sometimes', 'required', 'date_format:Y-m-d'],

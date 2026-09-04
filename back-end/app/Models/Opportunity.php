@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 
 #[Fillable([
     'product_id',
+    'customer_id',
     'qty',
     'unit_price',
     'due_date',
@@ -15,6 +16,14 @@ use Illuminate\Database\Eloquent\Model;
 ])]
 class Opportunity extends Model
 {
+    /**
+     * Get the customer attached to the opportunity.
+     */
+    public function customer(): BelongsTo
+    {
+        return $this->belongsTo(Customer::class);
+    }
+
     /**
      * Get the product attached to the opportunity.
      */
@@ -32,6 +41,7 @@ class Opportunity extends Model
     {
         return [
             'product_id' => 'integer',
+            'customer_id' => 'integer',
             'qty' => 'integer',
             'unit_price' => 'decimal:2',
             'due_date' => 'date',

@@ -29,6 +29,8 @@ a quick win you can tick off and move on.
 - [X] Create `opportunities` migration (product_id, qty, unit_price, due_date, stage)
 - [X] Create `Opportunity` model
 - [X] Seed 5 opportunities (product only, no customer, no discount)
+- [X] Add optional `customer_id` relationship for sales opportunities
+- [X] Build `GET /api/customers` for sales customer selection
 - [X] Build `GET /api/opportunities`
 - [X] Build `POST /api/opportunities`
 - [X] Build `PATCH /api/opportunities/{id}`
@@ -44,6 +46,7 @@ a quick win you can tick off and move on.
 
 **Verify**
 - [X] Log in as sales user and confirm list/create/update all work
+- [X] Verify customer listing and customer-linked opportunity create/update validation
 
 ---
 

@@ -18,7 +18,7 @@ class OpportunityController extends Controller
     public function index(): JsonResponse
     {
         $opportunities = Opportunity::query()
-            ->with('product')
+            ->with(['product', 'customer'])
             ->orderBy('id')
             ->get()
             ->map(fn (Opportunity $opportunity): array => $this->payload($opportunity))
@@ -48,7 +48,7 @@ class OpportunityController extends Controller
         });
 
         return response()->json([
-            'opportunity' => $this->payload($opportunity->load('product')),
+            'opportunity' => $this->payload($opportunity->load(['product', 'customer'])),
         ], 201);
     }
 
@@ -86,7 +86,7 @@ class OpportunityController extends Controller
         });
 
         return response()->json([
-            'opportunity' => $this->payload($opportunity->load('product')),
+            'opportunity' => $this->payload($opportunity->load(['product', 'customer'])),
         ]);
     }
 
@@ -121,10 +121,17 @@ class OpportunityController extends Controller
         return [
             'id' => $opportunity->id,
             'product_id' => $opportunity->product_id,
+            'customer_id' => $opportunity->customer_id,
             'qty' => $quantity,
             'unit_price' => $opportunity->unit_price,
             'due_date' => $opportunity->due_date?->format('Y-m-d'),
             'stage' => $opportunity->stage,
+            'customer' => $opportunity->customer ? [
+                'id' => $opportunity->customer->id,
+                'name' => $opportunity->customer->name,
+                'email' => $opportunity->customer->email,
+                'phone' => $opportunity->customer->phone,
+            ] : null,
             'product' => [
                 'id' => $opportunity->product->id,
                 'name' => $opportunity->product->name,

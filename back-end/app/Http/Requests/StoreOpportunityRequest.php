@@ -24,6 +24,7 @@ class StoreOpportunityRequest extends FormRequest
     {
         return [
             'product_id' => ['required', 'integer', 'exists:products,id'],
+            'customer_id' => ['sometimes', 'nullable', 'integer', 'exists:customers,id'],
             'qty' => ['required', 'integer', 'min:0'],
             'unit_price' => ['required', 'numeric', 'min:0'],
             'due_date' => ['required', 'date_format:Y-m-d'],

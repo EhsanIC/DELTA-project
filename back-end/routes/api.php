@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CustomerController;
 use App\Http\Controllers\Api\FinanceController;
 use App\Http\Controllers\Api\OpportunityController;
 use App\Http\Controllers\Api\OperationsController;
@@ -15,6 +16,9 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::get('/user', [AuthController::class, 'user']);
     Route::get('/products', [ProductController::class, 'index']);
+
+    Route::get('/customers', [CustomerController::class, 'index'])
+        ->middleware('role:sales');
 
     Route::middleware('role:sales')->group(function (): void {
         Route::get('/opportunities', [OpportunityController::class, 'index']);

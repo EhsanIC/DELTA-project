@@ -13,7 +13,7 @@ just different data/forms per role.
 **Setup**
 - [X] Install deps: `react-hook-form`, `zod`, `@hookform/resolvers`, `sonner`, `swr`
 - [X] `npx shadcn@latest init`
-- [~] Add shadcn components: `button`, `input`, `label`, `form`, `select`, `table`, `sonner` (base components exist; form/select/table/sonner are still missing)
+- [X] Add shadcn components: `button`, `input`, `label`, `form`, `select`, `table`, `sonner` (base components exist; form/select/table/sonner are still missing)
 - [ ] `apiFetch` wrapper (base URL + Sanctum token header)
 - [~] Signup page — calls `POST /api/signup` (signup page/form shell exists, but it does not call the backend)
 - [~] Login page — calls login endpoint, stores token (login page/form shell exists, but it does not call the backend)
